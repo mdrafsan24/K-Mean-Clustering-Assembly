@@ -14,7 +14,6 @@
     clusterTwoSize: .space 4 ### Contains the size of new cluster
 
 
-
 MSGEnterCoordinates: .asciiz "Enter all coordinate in 0000 format:" # Asking for user Input
 MSGEnterFirstCentroid: .asciiz "Enter the first centroid in 0000 format: " # Asking for first centroid
 MSGEnterSecondCentroid: .asciiz "Enter the second centroid in 0000 format: " # Asking for first centroid
@@ -26,6 +25,8 @@ CentroidTwo: .asciiz "This is the second centroid: "
 
 distanceCentroidOne : .asciiz "Distance from centroid one: "
 distanceCentroidTwo : .asciiz "Distance from centroid two: "
+
+endingMessage: .asciiz "Since it's the same as the last cluster, the program ends!"
 
 newline: .asciiz "\n" #To print a new line
 
@@ -127,8 +128,8 @@ clusterOneToOld:
     j clusterOneToOld
 putCurrentArrayTwoInPrev:
     li $t0, 0
-    lw $t1, clusterOneSize($t0)
-    sw $t1, oldClusterOneSize($t0)
+    lw $t1, clusterTwoSize($t0)
+    sw $t1, oldClusterTwoSize($t0)
 clusterTwoToOld:
     lw $t2, clusterTwoArray($t0)
     sw $t2, oldClusterTwo($t0)
@@ -410,11 +411,20 @@ printNewCluster:
         li $t1, 0
         lw $t2, clusterTwoSize($t1)
         mul $t2, $t2, 4
-        beq $t3, $t2, checkClusterOneSame
+        beq $t3, $t2, finishPrintingCluster
         li $a0, ','
         li $v0, 11    # print_character
         syscall
         j printClusterTwo
+
+finishPrintingCluster:
+    li $a0, '}'
+    li $v0, 11    # print_character
+    syscall
+    li $v0, 4
+    la $a0, newline
+    syscall
+    j checkClusterOneSame
 
 calculateDistance:
     li $s7, 100 # Put 100 in s7
@@ -526,5 +536,8 @@ putInClusterTwo:
 
 
 exit:
+    li $v0,4
+    la $a0, endingMessage
+    syscall
     li $v0, 10
     syscall
