@@ -26,6 +26,8 @@ CentroidTwo: .asciiz "This is the second centroid: "
 distanceCentroidOne : .asciiz "Distance from centroid one: "
 distanceCentroidTwo : .asciiz "Distance from centroid two: "
 
+finalCentroid : .asciiz "The final centroids are: "
+
 endingMessage: .asciiz "Since it's the same as the last cluster, the program ends!"
 
 newline: .asciiz "\n" #To print a new line
@@ -152,8 +154,9 @@ calculateCentroidOne:
     add $t2, $t2, $t6
     add $t3, $t3, $t7
     mul $t8, $t1, 4
-    beq $t8, $t0, calculateNewCentroidTwo
     add $t0, $t0, 4
+    beq $t8, $t0, calculateNewCentroidTwo
+
     j calculateCentroidOne
 
 calculateNewCentroidTwo:
@@ -179,12 +182,13 @@ calculateCentroidTwo:
     add $t2, $t2, $t6
     add $t3, $t3, $t7
     mul $t8, $t1, 4
-    beq $t8, $t0, finishCalc
     add $t0, $t0, 4
+    beq $t8, $t0, finishCalc
+
     j calculateCentroidTwo
 finishCalc:
     li $t0, 0
-    lw $t1, clusterOneSize($t0)
+    lw $t1, clusterTwoSize($t0)
     move $s1, $t2
     div $s1, $t1
     mflo $s1
@@ -537,7 +541,60 @@ putInClusterTwo:
 
 exit:
     li $v0,4
+    la $a0, finalCentroid
+    syscall
+
+    li $t4, 100
+    div $s0, $t4
+    mflo $t6
+    mfhi $t7
+
+    li $a0, '('
+    li $v0, 11    # print_character
+    syscall
+    li $v0, 1
+    move $a0, $t6
+    syscall
+    li $a0, ','
+    li $v0, 11    # print_character
+    syscall
+    li $v0, 1
+    move $a0, $t7
+    syscall
+    li $a0, ')'
+    li $v0, 11    # print_character
+    syscall
+
+
+    li $t4, 100
+    div $s1, $t4
+    mflo $t6
+    mfhi $t7
+
+    li $a0, '('
+    li $v0, 11    # print_character
+    syscall
+    li $v0, 1
+    move $a0, $t6
+    syscall
+    li $a0, ','
+    li $v0, 11    # print_character
+    syscall
+    li $v0, 1
+    move $a0, $t7
+    syscall
+    li $a0, ')'
+    li $v0, 11    # print_character
+    syscall
+    li $v0, 4
+    la $a0, newline
+    syscall
+
+
+    li $v0,4
     la $a0, endingMessage
     syscall
     li $v0, 10
     syscall
+
+calculateFinalCentroid:
